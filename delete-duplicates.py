@@ -25,7 +25,12 @@ def main():
 
         k = db.firstkey()
         while k != None:
-            media_item = json.loads(db[k])
+            print(db[k])
+            try:
+                media_item = json.loads(db[k])
+            except:
+                k = db.nextkey(k)
+                continue
             print("Opening " + media_item['productUrl'])
             driver.get(media_item['productUrl'])
 
@@ -33,14 +38,20 @@ def main():
             wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, delete_css)))
             delete_button = driver.find_element_by_css_selector(delete_css)
             delete_button.click()
+            time.sleep(2)
 
             confirm_span_xpath = "//span[text()='Move to trash']"
-            confirm_span_element = driver.find_elements_by_xpath(confirm_span_xpath)[1]
+            confirm_span_elements = driver.find_elements_by_xpath(confirm_span_xpath)
+            confirm_span_element = None
+            for elem in confirm_span_elements:
+                if elem.is_displayed():
+                    confirm_span_element = elem
             confirm_button = confirm_span_element.find_element_by_xpath("..")
             time.sleep(2)
             confirm_button.click()
 
             time.sleep(3)
+            db[k] = ""
             input("Next?")
 
             count += 1
