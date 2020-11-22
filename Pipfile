@@ -9,6 +9,8 @@ verify_ssl = true
 requests = "*"
 imagehash = "*"
 pillow = "*"
+selenium = "*"
+chromedriver-py = "*"
 
 [requires]
 python_version = "3.7"
