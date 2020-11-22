@@ -1,4 +1,4 @@
-import requests, dbm, os, json
+import requests, dbm, os, json, time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -30,14 +30,21 @@ def main():
             driver.get(media_item['productUrl'])
 
             delete_css = "button[title='Delete']"
-            h3 = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, delete_css)))
-
+            wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, delete_css)))
             delete_button = driver.find_element_by_css_selector(delete_css)
             delete_button.click()
 
+            confirm_span_xpath = "//span[text()='Move to trash']"
+            confirm_span_element = driver.find_elements_by_xpath(confirm_span_xpath)[1]
+            confirm_button = confirm_span_element.find_element_by_xpath("..")
+            time.sleep(2)
+            confirm_button.click()
+
+            time.sleep(3)
+            input("Next?")
+
             count += 1
             k = db.nextkey(k)
-            break
 
     print("Duplicates found: " + str(count))
     input("Close?")
