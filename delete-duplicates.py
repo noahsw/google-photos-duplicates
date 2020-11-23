@@ -7,10 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from chromedriver_py import binary_path # this will get you the path variable
 
 
-def delete_duplicate(media_item_id):
-    return
-
-
 def main():
     count = 0
     with dbm.open('duplicate_store.db', 'c') as db:
