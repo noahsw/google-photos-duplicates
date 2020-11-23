@@ -21,7 +21,7 @@ def main():
         wait = WebDriverWait(driver, 10)
 
         driver.get("https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&prompt=consent&response_type=code&client_id=407408718192.apps.googleusercontent.com&scope=email&access_type=offline&flowName=GeneralOAuthFlow")
-        input("Login to Google Photos")
+        input("Login to Google Photos...")
 
         k = db.firstkey()
         while k != None:
@@ -33,6 +33,7 @@ def main():
                 continue
             print("Opening " + media_item['productUrl'])
             driver.get(media_item['productUrl'])
+            time.sleep(3)
 
             delete_css = "button[title='Delete']"
             wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, delete_css)))
@@ -52,13 +53,11 @@ def main():
 
             time.sleep(3)
             db[k] = ""
-            input("Next?")
+            # input("Next?")
 
             count += 1
+            print(str(count) + " duplicates deleted")
             k = db.nextkey(k)
-
-    print("Duplicates found: " + str(count))
-    input("Close?")
 
 
 if __name__ == "__main__":
