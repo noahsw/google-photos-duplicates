@@ -43,7 +43,7 @@ def compare_media_item(media_item):
 
     with dbm.open('history_store.db', 'c') as db:
         if media_item['id'] in db:
-            print("Skipping " + media_item['id'] + " because we've already downloaded it!")
+            print("Already compared " + media_item['id'] + " (" + media_item['mediaMetadata']['creationTime'] + ")")
             return
         else:
             db[media_item['id']] = "1"
@@ -59,13 +59,17 @@ def compare_media_item(media_item):
     r = requests.get(baseUrl)
     open(path, 'wb').write(r.content)
 
+    # no need to convert HEIC to JPG as ImageHash supports HEIC
     hash = str(imagehash.average_hash(Image.open(path)))
 
-    print("Saved " + media_item['id'] + " to " + path + " w/ hash " + hash)
+    print("Saved " + media_item['id'] + " to " + path + " w/ hash " + hash + " (" + media_item['mediaMetadata']['creationTime'] + ")")
 
     with dbm.open('hash_store.db', 'c') as db:
         if hash in db:
+            print("")
             print("DUPLICATE found!")
+            print("Duplicate info: " + str(db[hash]))
+            print("")
             with dbm.open('duplicate_store.db', 'c') as duplicate_db:
                 print(json.dumps(media_item))
                 duplicate_db[media_item['id']] = json.dumps(media_item)
@@ -118,6 +122,7 @@ def main():
 
     ### ITERATE THROUGH FILES
     next_page_token = ""
+    page_count = 1
     while True:
         params = {
             'key': key,
@@ -153,6 +158,8 @@ def main():
 
         if "nextPageToken" in json:
             next_page_token = json['nextPageToken']
+            print("Page " + str(page_count) + "...")
+            page_count += 1
         else:
             break
 
