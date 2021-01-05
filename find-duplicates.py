@@ -1,4 +1,4 @@
-import requests, imagehash, dbm, json, os, sys, getopt
+import requests, hashlib, dbm, json, os, sys, getopt
 from PIL import Image
 
 
@@ -46,7 +46,7 @@ def compare_media_item(media_item):
             print("Already compared " + media_item['id'] + " (" + media_item['mediaMetadata']['creationTime'] + ")")
             return
         else:
-            db[media_item['id']] = "1"
+            db[media_item['id']] = json.dumps(media_item)
 
     filename = media_item['filename']
     baseUrl = media_item['baseUrl'] + "=w640-h480"
@@ -59,66 +59,32 @@ def compare_media_item(media_item):
     r = requests.get(baseUrl)
     open(path, 'wb').write(r.content)
 
-    # no need to convert HEIC to JPG as ImageHash supports HEIC
-    hash = str(imagehash.average_hash(Image.open(path)))
+    # no need to convert HEIC to JPG as PIL supports HEIC
+    md5hash = hashlib.md5(Image.open(path).tobytes())
+    hash = md5hash.hexdigest()
 
-    print("Saved " + media_item['id'] + " to " + path + " w/ hash " + hash + " (" + media_item['mediaMetadata']['creationTime'] + ")")
+    print("Saved " + media_item['id'] + " -> md5 " + hash + " @ " + media_item['mediaMetadata']['creationTime'])
 
     with dbm.open('hash_store.db', 'c') as db:
         if hash in db:
             print("")
             print("DUPLICATE found!")
+            print(json.dumps(media_item))
+            print("")
             print("Duplicate info: " + str(db[hash]))
             print("")
             with dbm.open('duplicate_store.db', 'c') as duplicate_db:
-                print(json.dumps(media_item))
                 duplicate_db[media_item['id']] = json.dumps(media_item)
-            # add_media_time_to_album(media_item, album_id)
         else:
             db[hash] = json.dumps(media_item)
 
     if os.path.exists(path):
         os.remove(path)
 
-
-def add_media_time_to_album(media_item, album_id):
-    data = (
-        ('key', key),
-        ("mediaItemIds", [media_item['id']])
-    )
-
-    response = requests.post("https://content-photoslibrary.googleapis.com/v1/albums/" + album_id + ":batchAddMediaItems", headers=headers, data=data)
-
-
-
-
 def main():
     params = (
         ('key', key),
     )
-
-    """
-
-    response = requests.post('https://photoslibrary.googleapis.com/v1/albums', headers=headers, data=data)
-
-
-    response = requests.get('https://content-photoslibrary.googleapis.com/v1/albums?pageSize=50', headers=headers, params=params)
-    albums = response.json()['albums']
-
-    i = 0
-    for album in albums:
-        i += 1
-        print(str(i) + ". " + album['title'])
-
-    print("")
-    print("Which album to store duplicates?")
-    album_index = int(input())
-
-    album = albums[album_index - 1]
-    album_id = album['id']
-    album_name = album['title']
-    """
-
 
     ### ITERATE THROUGH FILES
     next_page_token = ""
