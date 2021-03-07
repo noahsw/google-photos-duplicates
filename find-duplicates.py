@@ -2,23 +2,10 @@ import requests, hashlib, dbm, json, os, sys, getopt
 from PIL import Image
 
 
-key = ""
-authorization = ""
+key = sys.argv[1]
 
-try:
-    opts, args = getopt.getopt(sys.argv[1:] , "", ["key=","authorization="])
-except getopt.GetoptError:
-    print("find-duplicates.py --key=<key> --authorizaton=<authorization>")
-    sys.exit(2)
-for opt, arg in opts:
-    if opt == '-h':
-        print("find-duplicates.py --key=<key> --authorizaton=<authorization>")
-        sys.exit()
-    elif opt in ("--authorization"):
-        authorization = arg
-    elif opt in ("--key"):
-        key = arg
-
+print("Authorization? Remove the Bearer part")
+authorization = input()
 
 headers = {
     'authority': 'content-photoslibrary.googleapis.com',
