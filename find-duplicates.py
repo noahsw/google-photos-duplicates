@@ -36,7 +36,7 @@ def compare_media_item(media_item):
             db[media_item['id']] = json.dumps(media_item)
 
     filename = media_item['filename']
-    baseUrl = media_item['baseUrl'] + "=w640-h480"
+    baseUrl = media_item['baseUrl'] + "=w" + media_item['mediaMetadata']['width'] + "-h" + media_item['mediaMetadata']['height']
 
     path = "tmp/" + filename
 
