@@ -40,9 +40,6 @@ def compare_media_item(media_item):
 
     path = "tmp/" + filename
 
-    if os.path.isfile(path):
-        return
-
     r = requests.get(baseUrl)
     open(path, 'wb').write(r.content)
 
